@@ -7,8 +7,6 @@ WORKDIR /opt/
 
 RUN cargo build --release
 
-RUN ls -a ./target/release/
-
 FROM scratch
 
 COPY --from=builder \
