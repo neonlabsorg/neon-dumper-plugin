@@ -56,11 +56,15 @@ CREATE OR REPLACE FUNCTION get_pre_accounts_one_slot(
 )
 
 RETURNS TABLE (
+    lamports BIGINT,
+    data BYTEA,
+    owner BYTEA,
+    executable BOOL,
+    rent_epoch BIGINT,
     pubkey BYTEA,
     slot BIGINT,
     write_version BIGINT,
-    signature BYTEA,
-    data BYTEA
+    signature BYTEA
 )
 
 AS $get_pre_accounts_one_slot$
@@ -68,11 +72,15 @@ AS $get_pre_accounts_one_slot$
 BEGIN
     RETURN QUERY
         SELECT DISTINCT ON (acc.pubkey)
+            acc.lamports,
+            acc.data,
+            acc.owner,
+            acc.executable,
+            acc.rent_epoch,
             acc.pubkey,
             acc.slot,
             acc.write_version,
-            acc.txn_signature,
-            acc.data
+            acc.txn_signature
         FROM account_audit AS acc
         WHERE
             acc.slot = current_slot
@@ -92,11 +100,15 @@ CREATE OR REPLACE FUNCTION get_pre_accounts_branch(
 )
   
 RETURNS TABLE (
+    lamports BIGINT,
+    data BYTEA,
+    owner BYTEA,
+    executable BOOL,
+    rent_epoch BIGINT,
     pubkey BYTEA,
     slot BIGINT,
     write_version BIGINT,
-    signature BYTEA,
-    data BYTEA
+    signature BYTEA
 )
 
 AS $get_pre_accounts_branch$
@@ -126,11 +138,15 @@ BEGIN
    
     RETURN QUERY
         SELECT DISTINCT ON (slot_results.pubkey)
+            slot_results.lamports,
+            slot_results.data,
+            slot_results.owner,
+            slot_results.executable,
+            slot_results.rent_epoch,
             slot_results.pubkey,
             slot_results.slot,
             slot_results.write_version,
-            slot_results.signature,
-            slot_results.data
+            slot_results.signature
         FROM
             unnest(branch_slots) AS current_slot,
             get_pre_accounts_one_slot(
@@ -153,11 +169,15 @@ CREATE OR REPLACE FUNCTION get_pre_accounts_root(
 )
 
 RETURNS TABLE (
+    lamports BIGINT,
+    data BYTEA,
+    owner BYTEA,
+    executable BOOL,
+    rent_epoch BIGINT,
     pubkey BYTEA,
     slot BIGINT,
     write_version BIGINT,
-    signature BYTEA,
-    data BYTEA
+    signature BYTEA
 )
 
 AS $get_pre_accounts_root$
@@ -165,11 +185,15 @@ AS $get_pre_accounts_root$
 BEGIN
     RETURN QUERY
         SELECT DISTINCT ON (acc.pubkey)
+            acc.lamports,
+            acc.data,
+            acc.owner,
+            acc.executable,
+            acc.rent_epoch,
             acc.pubkey,
             acc.slot,
             acc.write_version,
-            acc.txn_signature,
-            acc.data
+            acc.txn_signature
         FROM account_audit AS acc
         WHERE
             acc.slot <= start_slot
@@ -184,11 +208,15 @@ $get_pre_accounts_root$ LANGUAGE plpgsql;
 -----------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION get_pre_accounts(in_txn_signature BYTEA) 
 RETURNS TABLE (
+    lamports BIGINT,
+    data BYTEA,
+    owner BYTEA,
+    executable BOOL,
+    rent_epoch BIGINT,
     pubkey BYTEA,
     slot BIGINT,
     write_version BIGINT,
-    signature BYTEA,
-    data BYTEA
+    signature BYTEA
 )
 
 AS $get_pre_accounts$
@@ -265,11 +293,15 @@ BEGIN
                     )
                 )
                 SELECT DISTINCT ON (res.pubkey)
+                    res.lamports,
+                    res.data,
+                    res.owner,
+                    res.executable,
+                    res.rent_epoch,
                     res.pubkey,
                     res.slot,
                     res.write_version,
-                    res.signature,
-                    res.data
+                    res.signature
                 FROM results AS res
                 ORDER BY
                     res.pubkey,

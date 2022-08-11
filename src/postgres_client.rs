@@ -2,7 +2,7 @@
 
 mod postgres_client_account_index;
 mod postgres_client_block_metadata;
-mod postgres_client_transaction;
+pub mod postgres_client_transaction;
 
 /// A concurrent implementation for writing accounts into the PostgreSQL in parallel.
 use {
