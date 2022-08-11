@@ -123,7 +123,7 @@ BEGIN
             first.parent,
             first.status
         FROM slot AS first
-        WHERE first.slot = start_slot
+        WHERE first.slot = start_slot and first.status <> 'rooted'
         UNION
             SELECT
                 next.slot,
@@ -131,6 +131,7 @@ BEGIN
                 next.status
             FROM slot AS next
             INNER JOIN parents p ON p.parent = next.slot
+            WHERE next.status <> 'rooted'
     )
     SELECT array_agg(prnts.slot)
     INTO branch_slots
