@@ -275,7 +275,10 @@ END;
 $get_pre_accounts_root$ LANGUAGE plpgsql;
 
 -----------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION get_pre_accounts(in_txn_signature BYTEA) 
+CREATE OR REPLACE FUNCTION get_pre_accounts(
+    in_txn_signature BYTEA,
+    transaction_accounts BYTEA[]
+)
 RETURNS TABLE (
     lamports BIGINT,
     data BYTEA,
@@ -293,7 +296,6 @@ AS $get_pre_accounts$
 DECLARE
     current_slot BIGINT;
     max_write_version BIGINT := NULL;
-    transaction_accounts BYTEA[];
     transaction_slots BIGINT[];
     first_rooted_slot BIGINT;
    
@@ -303,12 +305,6 @@ BEGIN
     INTO max_write_version
     FROM account_audit AS acc
     WHERE position(in_txn_signature in acc.txn_signature) > 0;
-  
-    -- Query all accounts required by given transaction
-    SELECT array_agg(ta.pubkey)
-    INTO transaction_accounts
-    FROM transaction_account AS ta
-    WHERE position(in_txn_signature IN ta.signature) > 0;
   
     -- find all occurencies of transaction in slots
     SELECT array_agg(txn.slot)
