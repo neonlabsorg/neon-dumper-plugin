@@ -59,7 +59,6 @@ struct PostgresSqlClientWrapper {
     insert_token_mint_index_stmt: Option<Statement>,
     bulk_insert_token_owner_index_stmt: Option<Statement>,
     bulk_insert_token_mint_index_stmt: Option<Statement>,
-    update_transaction_account_stmt: Statement,
 }
 
 pub struct SimplePostgresClient {
@@ -831,11 +830,6 @@ impl SimplePostgresClient {
             None
         };
 
-        let update_transaction_account_stmt = Self::build_update_transaction_account_statement(
-            &mut client,
-            config,
-        )?;
-
         info!("Created SimplePostgresClient.");
         Ok(Self {
             batch_size,
@@ -853,7 +847,6 @@ impl SimplePostgresClient {
                 insert_token_mint_index_stmt,
                 bulk_insert_token_owner_index_stmt,
                 bulk_insert_token_mint_index_stmt,
-                update_transaction_account_stmt,
             }),
             index_token_owner: config.index_token_owner.unwrap_or_default(),
             index_token_mint: config.index_token_mint.unwrap_or(false),

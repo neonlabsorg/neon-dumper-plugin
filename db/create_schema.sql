@@ -240,11 +240,3 @@ $audit_account_update$ LANGUAGE plpgsql;
 
 CREATE TRIGGER account_update_trigger AFTER INSERT OR UPDATE OR DELETE ON account
     FOR EACH ROW EXECUTE PROCEDURE audit_account_update();
-
-CREATE TABLE transaction_account (
-    signature BYTEA,
-    pubkey BYTEA,
-    is_writable BOOL,
-
-    CONSTRAINT txn_acc_pk PRIMARY KEY (signature, pubkey)
-)
