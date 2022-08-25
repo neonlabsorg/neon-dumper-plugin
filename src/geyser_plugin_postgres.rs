@@ -18,6 +18,8 @@ use {
     std::{fs::File, io::Read},
     thiserror::Error,
 };
+use solana_geyser_plugin_interface::geyser_plugin_interface::ReplicaAccountInfoV2;
+use solana_sdk::transaction::SanitizedTransaction;
 
 #[derive(Default)]
 pub struct GeyserPluginPostgres {
@@ -105,6 +107,27 @@ pub enum GeyserPluginPostgresError {
 
     #[error("Replica transaction V0.0.1 not supported anymore")]
     ReplicaTransactionV001NotSupported,
+}
+
+impl GeyserPluginPostgres {
+    fn filter_account_transaction(&self, account: &ReplicaAccountInfoV2) -> bool {
+        if let Some(tx) = account.tx {
+            if let Some(transaction_selector) = &self.transaction_selector {
+                if !transaction_selector.is_transaction_selected(
+                    tx.is_simple_vote_transaction(),
+                    Box::new(tx.message()
+                        .program_instructions_iter()
+                        .map(|(pubkey, _)| pubkey))
+                ) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        true
+    }
 }
 
 impl GeyserPlugin for GeyserPluginPostgres {
@@ -234,8 +257,9 @@ impl GeyserPlugin for GeyserPluginPostgres {
                 let mut measure_select =
                     Measure::start("geyser-plugin-postgres-update-account-select");
                 if let Some(accounts_selector) = &self.accounts_selector {
-                    if !accounts_selector.is_account_selected(account.pubkey, account.owner) {
-                        return Ok(());
+                    if !accounts_selector.is_account_selected(account.pubkey, account.owner)
+                        && !self.filter_account_transaction(account) {
+                        return Ok(())
                     }
                 } else {
                     return Ok(());
