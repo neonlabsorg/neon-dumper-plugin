@@ -11,15 +11,13 @@ use {
     serde_json,
     solana_geyser_plugin_interface::geyser_plugin_interface::{
         GeyserPlugin, GeyserPluginError, ReplicaAccountInfoVersions, ReplicaBlockInfoVersions,
-        ReplicaTransactionInfoVersions, Result, SlotStatus,
+        ReplicaTransactionInfoVersions, Result, SlotStatus, ReplicaAccountInfoV2,
     },
     solana_measure::measure::Measure,
     solana_metrics::*,
     std::{fs::File, io::Read},
     thiserror::Error,
 };
-use solana_geyser_plugin_interface::geyser_plugin_interface::ReplicaAccountInfoV2;
-use solana_sdk::transaction::SanitizedTransaction;
 
 #[derive(Default)]
 pub struct GeyserPluginPostgres {
